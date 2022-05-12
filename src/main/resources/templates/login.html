@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>login</title>
+	<link rel="stylesheet" href="../static/layui/css/layui.css">
+	<!-- 注意：如果你直接复制所有代码到本地，上述css路径需要改成你本地的 -->
+	<style type="text/css">
+		.container{
+			width: 420px;
+			height: 320px;
+			min-height: 320px;
+			max-height: 320px;
+			position: absolute;
+			top: 0;
+			left: 0;
+			bottom: 0;
+			right: 0;
+			margin: auto;
+			padding: 20px;
+			z-index: 130;
+			border-radius: 8px;
+			background-color: #fff;
+			box-shadow: 0 3px 18px rgba(100, 0, 0, .5);
+			font-size: 16px;
+		}
+		.layui-input{
+			border-radius: 5px;
+			width: 300px;
+			height: 40px;
+			font-size: 15px;
+		}
+		.layui-form-item{
+			margin-left: -20px;
+		}
+		.layui-btn{
+			margin-left: -50px;
+			border-radius: 5px;
+			width: 350px;
+			height: 40px;
+			font-size: 15px;
+		}
+		a:hover{
+			text-decoration: underline;
+		}
+	</style>
+</head>
+<body>
+<form id="loginFormId" class="layui-form" action="/logindata" method="post">
+	<div class="container">
+		<div style="padding: 35px;"></div>
+		<div class="layui-form-item">
+			<label class="layui-form-label">用户名</label>
+			<div class="layui-input-block">
+				<input id="account" type="text" name="account" required  lay-verify="required" placeholder="请输入用户名" autocomplete="off" class="layui-input">
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<label class="layui-form-label">密码</label>
+			<div class="layui-input-inline">
+				<input id="password" type="password" name="password" required lay-verify="required" placeholder="请输入密码" autocomplete="off" class="layui-input">
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<div class="layui-input-block">
+				<button id="loginBtn" class="layui-btn" lay-submit lay-filter="formLogin">登录</button>
+			</div>
+		</div>
+	</div>
+</form>
+<script type="text/javascript" src="../static/js/jquery/jquery-3.4.1.min.js"></script>
+<script type="text/javascript" src="../static/layui/layui.js"></script>
+<!-- 注意：如果你直接复制所有代码到本地，上述 JS 路径需要改成你本地的 -->
+
+<script>
+	layui.use(['form' ,'layer'], function() {
+		var form = layui.form;
+		form.on("submit(formLogin)",function () {
+			login();
+			return false;
+		});
+	})
+
+	function login() {
+		var account = $("#account").val();
+		var password = $("#password").val()
+		localStorage.setItem("account",account);
+		$.post("/logindata", $("#loginFormId").serialize(), function (data) {
+			if (data.code == 1) {
+				window.location.href = data.url;
+			} else {
+				layer.alert("用户名或密码错误")
+			}
+		});
+	}
+</script>
+</body>
+</html>

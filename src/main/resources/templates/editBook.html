@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>editBook</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="../../static/layui/css/layui.css" media="all">
+</head>
+<style>
+    body{
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+</style>
+<body>
+
+<!--添加或编辑销售单-->
+<!--<div id="setSale" class="layer_self_wrap" style="width:500px;display:none;">-->
+<form id="saleForm" class="layui-form layui-form-pane" method="post" action="" style="margin-top: 20px;">
+    <div style="padding: 10px;"></div>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">书号</label>
+            <div class="layui-input-inline">
+                <input id="bookId" name="bookId" lay-verify="required" autocomplete="off" class="layui-input" type="text"/>
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">书名</label>
+            <div class="layui-input-inline">
+                <input id="bookName" name="bookName" lay-verify="required" autocomplete="off" class="layui-input" type="text"/>
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">作者</label>
+            <div class="layui-input-inline">
+                <input id="author" name="author" lay-verify="required" autocomplete="off" class="layui-input" type="text"/>
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">出版社</label>
+            <div class="layui-input-inline">
+                <input id="publisher" name="publisher" lay-verify="required" autocomplete="off" class="layui-input" type="text"/>
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">单价</label>
+            <div class="layui-input-inline">
+                <input id="price" name="price" lay-verify="required" autocomplete="off" class="layui-input" type="text"/>
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">库存量</label>
+            <div class="layui-input-inline">
+                <input id="inventory" name="inventory" lay-verify="required" autocomplete="off" class="layui-input" type="text"/>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="layui-form-item">
+        <div class="layui-input-block" style="margin-left: 0px;">
+            <button class="layui-btn"  lay-submit="" lay-filter="bookSubmit">提交</button>
+        </div>
+    </div>
+</form>
+
+<script type="text/javascript" src="../../static/js/jquery/jquery-3.4.1.min.js"></script>
+<script src="../../static/layui/layui.js" charset="utf-8"></script>
+<!-- 注意：如果你直接复制所有代码到本地，上述 JS 路径需要改成你本地的 -->
+
+<script>
+    layui.use(['table','form'], function(){
+        var table = layui.table,
+            form = layui.form;
+
+        //监听提交（更新）
+        form.on('submit(bookSubmit)', function(data){
+            //异步请求提交数据
+            localStorage.setItem("bookData",JSON.stringify(data.field))
+            $.ajax({
+                url: '/updatebook',
+                method: 'post',
+                data: { "bookData" : JSON.stringify(data.field)
+                },
+                async: true,
+            });
+            parent.location.reload();
+            var index = parent.layer.getFrameIndex(window.name);//关闭当前页面
+            parent.layer.close(index);
+            return false;
+        });
+    });
+
+    //回显图书
+    var number = localStorage.getItem("number");
+    $.ajax({
+        url: '/getbookdata',
+        method: 'post',
+        data: { "number" : number
+        },
+        dataType: 'json',
+        async: true,
+        success:function (book) {
+            $('#bookId').val(book.bookId);
+            $('#bookName').val(book.bookName);
+            $('#author').val(book.author);
+            $('#publisher').val(book.publisher);
+            $('#price').val(book.price);
+            $('#inventory').val(book.inventory);
+        },
+    });
+</script>
+
+</body>
+</html>

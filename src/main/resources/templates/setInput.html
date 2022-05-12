@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>setInput</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="../../static/layui/css/layui.css" media="all">
+</head>
+<style>
+    body{
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+</style>
+<body>
+
+<!--添加或编辑拣货单-->
+<!--<div id="setSale" class="layer_self_wrap" style="width:500px;display:none;">-->
+<form id="saleForm" class="layui-form layui-form-pane" method="post" action="" style="margin-top: 20px;">
+
+    <table class="layui-hide" id="setBook"></table>
+
+    <div class="layui-form-item">
+        <div class="layui-input-block" style="margin-left: 0px;">
+            <button class="layui-btn"  lay-submit="" lay-filter="inputSubmit">提交</button>
+        </div>
+    </div>
+</form>
+
+<script type="text/javascript" src="../../static/js/jquery/jquery-3.4.1.min.js"></script>
+<script src="../../static/layui/layui.js" charset="utf-8"></script>
+<!-- 注意：如果你直接复制所有代码到本地，上述 JS 路径需要改成你本地的 -->
+
+<script>
+    layui.use(['table','form'], function(){
+        var table = layui.table,
+            form = layui.form;
+
+        table.render({
+            elem: '#setBook'
+            ,data: JSON.parse(localStorage.getItem("setBook"))
+            ,cols: [
+                [
+                    {field:'bookId', title:'书号', width:175, sort: true}
+                    ,{field:'bookName', title:'书名', width:175, sort: true}
+                    ,{field:'author', title:'作者', width:175, sort: true}
+                    ,{field:'publisher', title:'出版社', width:175, sort: true}
+                    ,{field:'price', title:'单价', width:175, sort: true}
+                    ,{field:'input', title:'入库量', width:175, fixed: 'right', sort: true}
+                ]
+            ]
+            , page: false
+        });
+
+        //监听提交
+        form.on('submit(inputSubmit)', function(data){
+            //异步请求提交数据
+            var tableData = layui.table.cache['setBook'];//获取table全部数据
+            var account = localStorage.getItem("account");
+            var number = localStorage.getItem("number");
+            localStorage.setItem("tableData",JSON.stringify(tableData));
+            $.ajax({
+                url: '/submitinput',
+                method: 'post',
+                data: { "number" : number,
+                    "account" : account,
+                    "tableData" : JSON.stringify(tableData)
+                },
+                async: true,
+            });
+            parent.location.reload();
+            var index = parent.layer.getFrameIndex(window.name);//关闭当前页面
+            parent.layer.close(index);
+            return false;
+        });
+    });
+</script>
+
+</body>
+</html>

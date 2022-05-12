@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>checkPick</title>
+    <!--出库管理>>查询销售单>>查看-->
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="../../static/layui/css/layui.css" media="all">
+</head>
+<style>
+    body{
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+</style>
+<body>
+
+<!--<div id="setSale" class="layer_self_wrap" style="width:500px;display:none;">-->
+<form id="saleForm" class="layui-form layui-form-pane" method="post" action="" style="margin-top: 20px;">
+    <div style="padding: 10px;"></div>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">顾客编号</label>
+            <div class="layui-input-inline">
+                <input id="customerId" name="customerId" lay-verify="required" autocomplete="off" class="layui-input" type="text"/>
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">姓名</label>
+            <div class="layui-input-inline">
+                <input id="customerName" name="customerName" lay-verify="required" autocomplete="off" class="layui-input" type="text"/>
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">电话</label>
+            <div class="layui-input-inline">
+                <input id="customerTel" name="customerTel" lay-verify="required" autocomplete="off" class="layui-input" type="text"/>
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">地址</label>
+        <div class="layui-input-block">
+            <input id="customerAddress" name="customerAddress" lay-verify="required" autocomplete="off" class="layui-input" type="text"/>
+        </div>
+    </div>
+
+    <hr class="layui-bg-black"/>
+
+    <table class="layui-hide" id="setBook"></table>
+
+</form>
+
+<script type="text/javascript" src="../../static/js/jquery/jquery-3.4.1.min.js"></script>
+<script src="../../static/layui/layui.js" charset="utf-8"></script>
+<!-- 注意：如果你直接复制所有代码到本地，上述 JS 路径需要改成你本地的 -->
+
+<script>
+    layui.use(['table','form'], function(){
+        var table = layui.table,
+            form = layui.form;
+
+        table.render({
+            elem: '#setBook'
+            ,data: JSON.parse(localStorage.getItem("setBook"))
+            ,cols: [
+                [
+                    {field:'bookId', title:'书号', width:150, sort: true}
+                    ,{field:'bookName', title:'书名', width:150, sort: true}
+                    ,{field:'author', title:'作者', width:150, sort: true}
+                    ,{field:'publisher', title:'出版社', width:150, sort: true}
+                    ,{field:'price', title:'单价', width:150, sort: true}
+                    ,{field:'inventory', title:'库存量', width:150, sort: true}
+                    ,{field:'purchase', title:'订购量', width:150, sort: true}
+                    ,{field:'short', title:'缺货量', width:150, fixed: 'right', sort: true}
+                ]
+            ]
+            , page: false
+        });
+    });
+
+    //回显顾客
+    var number = localStorage.getItem("number");
+    $.ajax({
+        url: '/getcustomerpick',
+        method: 'post',
+        data: { "number" : number
+        },
+        dataType: 'json',
+        async: true,
+        success:function (customer) {
+            $('#customerId').val(customer.customerId);
+            $('#customerName').val(customer.name);
+            $('#customerTel').val(customer.tel);
+            $('#customerAddress').val(customer.address);
+        },
+    });
+</script>
+
+</body>
+</html>

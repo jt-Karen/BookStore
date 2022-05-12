@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>editSale</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="../../static/layui/css/layui.css" media="all">
+</head>
+<style>
+    body{
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+</style>
+<body>
+
+<!--添加或编辑销售单-->
+<!--<div id="setSale" class="layer_self_wrap" style="width:500px;display:none;">-->
+<form id="saleForm" class="layui-form layui-form-pane" method="post" action="" style="margin-top: 20px;">
+<!--    <button type="button" class="layui-btn" onclick="setCustomer()">添加顾客</button>-->
+    <button type="button" class="layui-btn" onclick="setBook()">添加图书</button>
+    <div style="padding: 10px;"></div>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">顾客编号</label>
+            <div class="layui-input-inline">
+                <input id="customerId" name="customerId" lay-verify="required" autocomplete="off" class="layui-input" type="text"/>
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">姓名</label>
+            <div class="layui-input-inline">
+                <input id="customerName" name="customerName" lay-verify="required" autocomplete="off" class="layui-input" type="text"/>
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">电话</label>
+            <div class="layui-input-inline">
+                <input id="customerTel" name="customerTel" lay-verify="required" autocomplete="off" class="layui-input" type="text"/>
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">地址</label>
+        <div class="layui-input-block">
+            <input id="customerAddress" name="customerAddress" lay-verify="required" autocomplete="off" class="layui-input" type="text"/>
+        </div>
+    </div>
+
+    <hr class="layui-bg-black"/>
+
+    <table class="layui-hide" id="setBook"></table>
+
+    <div class="layui-form-item">
+        <div class="layui-input-block" style="margin-left: 0px;">
+            <button class="layui-btn"  lay-submit="" lay-filter="saleSubmit">提交</button>
+        </div>
+    </div>
+</form>
+
+<script type="text/javascript" src="../../static/js/jquery/jquery-3.4.1.min.js"></script>
+<script src="../../static/layui/layui.js" charset="utf-8"></script>
+<!-- 注意：如果你直接复制所有代码到本地，上述 JS 路径需要改成你本地的 -->
+
+<script>
+    layui.use(['table','form'], function(){
+        var table = layui.table,
+            form = layui.form;
+
+        table.render({
+            elem: '#setBook'
+            ,data: JSON.parse(localStorage.getItem("setBook"))
+            ,cols: [
+                [
+                    {field:'bookId', title:'书号', width:175, sort: true}
+                    ,{field:'bookName', title:'书名', width:175, sort: true}
+                    ,{field:'author', title:'作者', width:175, sort: true}
+                    ,{field:'publisher', title:'出版社', width:175, sort: true}
+                    ,{field:'price', title:'单价', width:175, sort: true}
+                    ,{field:'purchase', title:'数量', width:175, fixed: 'right', sort: true, edit: 'text'}
+                ]
+            ]
+            , page: false
+        });
+
+        //监听提交（更新）
+        form.on('submit(saleSubmit)', function(data){
+            //异步请求提交数据
+            var tableData = layui.table.cache['setBook'];//获取table全部数据
+            var customerId = $('#customerId').val();//int
+            var number = localStorage.getItem("number");//int
+            localStorage.setItem("tableData",JSON.stringify(tableData));
+            localStorage.setItem("customerId",customerId);
+            $.ajax({
+                url: '/updatesale',
+                method: 'post',
+                data: { "number" : number,
+                    "tableData" : JSON.stringify(tableData)
+                },
+                async: true,
+            });
+            parent.location.reload();
+            var index = parent.layer.getFrameIndex(window.name);//关闭当前页面
+            parent.layer.close(index);
+            return false;
+        });
+    });
+
+    //回显顾客
+    var number = localStorage.getItem("number");
+    $.ajax({
+        url: '/getcustomer',
+        method: 'post',
+        data: { "number" : number
+        },
+        dataType: 'json',
+        async: true,
+        success:function (customer) {
+            $('#customerId').val(customer.customerId);
+            $('#customerName').val(customer.name);
+            $('#customerTel').val(customer.tel);
+            $('#customerAddress').val(customer.address);
+        },
+    });
+
+    //添加图书
+    function setBook(){
+        layer.open({
+            type:2,
+            title: "添加图书",
+            fixed:false,
+            resize :false,
+            shadeClose: true,
+            area: ['90%','90%'],
+            content:'/book',
+        });
+    }
+</script>
+
+</body>
+</html>

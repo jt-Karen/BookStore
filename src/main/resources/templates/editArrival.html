@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>editArrival</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="../../static/layui/css/layui.css" media="all">
+</head>
+<style>
+    body{
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+</style>
+<body>
+
+<!--添加或编辑到货单-->
+<!--<div id="setSale" class="layer_self_wrap" style="width:500px;display:none;">-->
+<form id="saleForm" class="layui-form layui-form-pane" method="post" action="" style="margin-top: 20px;">
+<!--    <button type="button" class="layui-btn" onclick="setPublisher()">添加出版社</button>-->
+    <button type="button" class="layui-btn" onclick="setBook()">添加图书</button>
+    <div style="padding: 10px;"></div>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">出版社编号</label>
+            <div class="layui-input-inline">
+                <input id="publisherId" name="publisherId" lay-verify="required" autocomplete="off" class="layui-input" type="text"/>
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">出版社名称</label>
+            <div class="layui-input-inline">
+                <input id="publisherName" name="publisherName" lay-verify="required" autocomplete="off" class="layui-input" type="text"/>
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">联系人</label>
+            <div class="layui-input-inline">
+                <input id="contact" name="contact" lay-verify="required" autocomplete="off" class="layui-input" type="text"/>
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">联系电话</label>
+        <div class="layui-input-inline">
+            <input id="publisherTel" name="publisherTel" lay-verify="required" autocomplete="off" class="layui-input" type="text"/>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">出版社地址</label>
+        <div class="layui-input-block">
+            <input id="publisherAddress" name="publisherAddress" lay-verify="required" autocomplete="off" class="layui-input" type="text"/>
+        </div>
+    </div>
+
+    <hr class="layui-bg-black"/>
+
+    <table class="layui-hide" id="setBook"></table>
+
+    <div class="layui-form-item">
+        <div class="layui-input-block" style="margin-left: 0px;">
+            <button class="layui-btn"  lay-submit="" lay-filter="arrivalSubmit">提交</button>
+        </div>
+    </div>
+</form>
+
+<script type="text/javascript" src="../../static/js/jquery/jquery-3.4.1.min.js"></script>
+<script src="../../static/layui/layui.js" charset="utf-8"></script>
+<!-- 注意：如果你直接复制所有代码到本地，上述 JS 路径需要改成你本地的 -->
+
+<script>
+    layui.use(['table','form'], function(){
+        var table = layui.table,
+            form = layui.form;
+
+        table.render({
+            elem: '#setBook'
+            ,data: JSON.parse(localStorage.getItem("setBook"))
+            ,cols: [
+                [
+                    {field:'bookId', title:'书号', width:175, sort: true}
+                    ,{field:'bookName', title:'书名', width:175, sort: true}
+                    ,{field:'author', title:'作者', width:175, sort: true}
+                    ,{field:'publisher', title:'出版社', width:175, sort: true}
+                    ,{field:'price', title:'单价', width:175, sort: true}
+                    ,{field:'arrival', title:'数量', width:175, fixed: 'right', sort: true, edit: 'text'}
+                ]
+            ]
+            , page: false
+        });
+
+        //监听提交（更新）
+        form.on('submit(arrivalSubmit)', function(data){
+            //异步请求提交数据
+            var tableData = layui.table.cache['setBook'];//获取table全部数据
+            var publisherId = $('#publisherId').val();//varchar
+            var number = localStorage.getItem("number");//int
+            localStorage.setItem("tableData",JSON.stringify(tableData));
+            localStorage.setItem("publisherId",publisherId);
+            $.ajax({
+                url: '/updatearrival',
+                method: 'post',
+                data: { "number" : number,
+                    "tableData" : JSON.stringify(tableData)
+                },
+                async: true,
+            });
+            parent.location.reload();
+            var index = parent.layer.getFrameIndex(window.name);//关闭当前页面
+            parent.layer.close(index);
+            return false;
+        });
+    });
+
+    //回显出版社
+    var number = localStorage.getItem("number");
+    $.ajax({
+        url: '/getpublisherarrival',
+        method: 'post',
+        data: { "number" : number
+        },
+        dataType: 'json',
+        async: true,
+        success:function (publisher) {
+            $('#publisherId').val(publisher.publisherId);
+            $('#publisherName').val(publisher.publisherName);
+            $('#contact').val(publisher.contact);
+            $('#publisherTel').val(publisher.tel);
+            $('#publisherAddress').val(publisher.address);
+        },
+    });
+
+    //添加图书
+    function setBook(){
+        layer.open({
+            type:2,
+            title: "添加图书",
+            fixed:false,
+            resize :false,
+            shadeClose: true,
+            area: ['90%','90%'],
+            content:'/book',
+        });
+    }
+</script>
+
+</body>
+</html>

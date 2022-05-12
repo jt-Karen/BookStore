@@ -1,0 +1,13 @@
+INSERT INTO `pick_data` VALUES (1, '978-7-02-014538-6', 3, 0);
+INSERT INTO `pick_data` VALUES (1, '978-7-02-015135-6', 4, 0);
+INSERT INTO `pick_data` VALUES (2, '978-7-02-016724-1', 3, 0);
+INSERT INTO `pick_data` VALUES (2, '978-7-02-016763-0', 4, 0);
+INSERT INTO `pick_data` VALUES (3, '978-7-5533-3295-6', 1, 0);
+INSERT INTO `pick_data` VALUES (3, '978-7-5533-3300-7', 1, 0);
+INSERT INTO `pick_data` VALUES (4, '978-7-5500-4480-7', 20, 6);
+INSERT INTO `pick_data` VALUES (5, '978-7-02-014538-6', 1, 0);
+INSERT INTO `pick_data` VALUES (5, '978-7-02-015135-6', 1, 0);
+INSERT INTO `pick_data` VALUES (6, '978-7-5598-4131-5', 3, 0);
+INSERT INTO `pick_data` VALUES (6, '978-7-5598-4299-2', 3, 0);
+INSERT INTO `pick_data` VALUES (7, '978-7-5680-7906-8', 2, 0);
+INSERT INTO `pick_data` VALUES (7, '978-7-5680-7919-8', 3, 0);

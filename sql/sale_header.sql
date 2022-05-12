@@ -1,0 +1,10 @@
+INSERT INTO `sale_header` VALUES (1, 'sale_1', 1, '1', '2022-4-30 09:58:56', '已处理');
+INSERT INTO `sale_header` VALUES (2, 'sale_2', 2, '1', '2022-4-30 09:59:15', '已处理');
+INSERT INTO `sale_header` VALUES (3, 'sale_3', 3, '1', '2022-4-30 09:59:17', '未处理');
+INSERT INTO `sale_header` VALUES (4, 'sale_4', 1, '1', '2022-4-30 09:59:19', '未处理');
+INSERT INTO `sale_header` VALUES (5, 'sale_5', 3, '1', '2022-4-30 09:59:22', '未处理');
+INSERT INTO `sale_header` VALUES (6, 'sale_6', 1, '1', '2022-4-30 09:59:24', '已处理');
+INSERT INTO `sale_header` VALUES (7, 'sale_7', 2, '1', '2022-4-30 09:59:27', '已处理');
+INSERT INTO `sale_header` VALUES (8, 'sale_8', 1, '1', '2022-4-30 09:59:31', '已处理');
+INSERT INTO `sale_header` VALUES (9, 'sale_9', 1, '1', '2022-4-30 11:06:30', '已处理');
+INSERT INTO `sale_header` VALUES (10, 'sale_10', 4, '1', '2022-5-9 22:57:32', '已处理');

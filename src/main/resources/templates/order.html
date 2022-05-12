@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>order</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="../../static/layui/css/layui.css" media="all">
+    <!-- 注意：如果你直接复制所有代码到本地，上述css路径需要改成你本地的 -->
+</head>
+<body>
+
+<table class="layui-hide" id="test" lay-filter="test"></table>
+
+<script type="text/html" id="toolbarDemo">
+    <div class="layui-btn-container">
+        <button class="layui-btn layui-btn-sm" lay-event="getCheckData">获取选中行数据</button>
+        <button class="layui-btn layui-btn-sm" lay-event="getCheckLength">获取选中数目</button>
+        <button class="layui-btn layui-btn-sm" lay-event="isAll">验证是否全选</button>
+        <button class="layui-btn layui-btn-sm" lay-event="addOrder">新增订货单</button>
+    </div>
+
+    <div style="padding: 5px;"></div>
+
+    <div class="demoTable">
+        <div class="layui-inline">
+            <input class="layui-input" name="search" id="search" autocomplete="off">
+        </div>
+        <button class="layui-btn" data-type="reload">搜索</button>
+    </div>
+</script>
+<script type="text/html" id="barDemo">
+    <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+
+<script type="text/javascript" src="../../static/js/jquery/jquery-3.4.1.min.js"></script>
+<script src="../../static/layui/layui.js" charset="utf-8"></script>
+<!-- 注意：如果你直接复制所有代码到本地，上述 JS 路径需要改成你本地的 -->
+
+<script>
+    layui.use(['table','layer'], function () {
+        var table = layui.table,
+            layer = layui.layer;
+
+        //温馨提示：默认由前端自动合计当前行数据。从 layui 2.5.6 开始： 若接口直接返回了合计行数据，则优先读取接口合计行数据。
+        //详见：https://www.layuion.com/doc/modules/table.html#totalRow
+        table.render({
+            elem: '#test'
+            , url: '/orderdata'
+            , toolbar: '#toolbarDemo'
+            , title: '用户数据表'
+            , totalRow: true
+            , cols: [
+                [
+                    {type: 'checkbox', fixed: 'left'}
+                    , {field: 'numberView', title: '订货单号', width: 200, fixed: 'left', sort: true}
+                    , {field: 'relateNumber', title: '关联拣货单号', width: 150, sort: true}
+                    , {field: 'account', title: '管理员工号', width: 150, sort: true}
+                    , {field: 'time', title: '时间', width: 200, sort: true}
+                    , {fixed: 'right', title: '操作', toolbar: '#barDemo', width: 200}
+                ]
+            ]
+            , id: 'testReload'
+            , page: false
+        });
+
+        var $ = layui.$, active = {
+            reload: function(){
+                var search = $('#search');
+
+                //执行重载
+                table.reload('testReload', {
+                    method: 'post'
+                    ,url: '/orderdatasearch'
+                    ,where: {
+                        // key: {
+                        search: search.val()
+                        // }
+                    }
+                });
+            }
+        };
+
+        $('.demoTable .layui-btn').on('click', function(){
+            var type = $(this).data('type');
+            active[type] ? active[type].call(this) : '';
+        });
+
+        //工具栏事件
+        table.on('toolbar(test)', function (obj) {
+            var checkStatus = table.checkStatus(obj.config.id);
+            switch (obj.event) {
+                case 'getCheckData':
+                    var data = checkStatus.data;
+                    layer.alert(JSON.stringify(data));
+                    break;
+                case 'getCheckLength':
+                    var data = checkStatus.data;
+                    layer.msg('选中了：' + data.length + ' 个');
+                    break;
+                case 'isAll':
+                    layer.msg(checkStatus.isAll ? '全选' : '未全选')
+                    break;
+                case 'addOrder':
+                    addOrder();
+                    break;
+            }
+            ;
+        });
+
+        table.on('tool(test)', function (obj) {
+            var data = obj.data;
+            switch (obj.event) {
+                case 'edit':
+                    //编辑
+                    editOrder(data);
+                    break;
+                case 'del':
+                    //删除
+                    delOrder(data);
+                    break;
+
+            }
+        });
+    });
+
+    //新增订货单
+    function addOrder(){
+        localStorage.removeItem("setPublisher");
+        localStorage.removeItem("setBook");
+        layer.open({
+            type:2,
+            title: "新增订货单",
+            fixed:false,
+            resize :false,
+            shadeClose: true,
+            area: ['90%','90%'],
+            content:'/addorder',
+        });
+    }
+
+    //编辑订货单
+    function editOrder(data){
+        localStorage.setItem("number",data.number);
+        //回显图书
+        $.ajax({
+            url: '/getbookorderdata',
+            method: 'post',
+            data: { "number" : localStorage.getItem("number")
+            },
+            dataType: 'json',
+            async: true,
+            success:function (orderBookList) {
+                localStorage.setItem("setBook",JSON.stringify(orderBookList));
+            },
+        });
+        layer.open({
+            type:2,
+            title: "编辑订货单",
+            fixed:false,
+            resize :false,
+            shadeClose: true,
+            area: ['90%','90%'],
+            content:'/editorder',
+        });
+    }
+
+    //删除订货单
+    function delOrder(data){
+        localStorage.setItem("number",data.number);
+        layer.confirm('确定删除订货单?', {btn: ['确定', '取消'], title:'提示'}, function(index){
+            $.ajax({
+                url: '/delorder',
+                method: 'post',
+                data: { "number" : localStorage.getItem("number")
+                },
+                async: true,
+            });
+            parent.location.reload();
+            layer.close(index);
+        });
+    }
+</script>
+
+</body>
+</html>
